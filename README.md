@@ -23,7 +23,6 @@ O projeto utiliza **Shadcn/ui** para componentes acessíveis e consistentes:
 ### Configuração Shadcn/ui
 
 ```javascript
-// tailwind.config.ts
 const config: Config = {
   darkMode: ["class"],
   content: [
@@ -46,7 +45,6 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        // ... outras cores
       },
     },
   },
@@ -134,7 +132,9 @@ npm start
     "tailwindcss-animate": "^1.0.7",
     "clsx": "^2.1.1",
     "@radix-ui/react-slot": "^1.0.2",
-    "class-variance-authority": "^0.7.0"
+    "class-variance-authority": "^0.7.0",
+    "@reduxjs/toolkit": "^2.0.1",
+    "react-redux": "^9.0.4"
   }
 }
 ```
@@ -178,6 +178,71 @@ Este microfrontend é carregado pelo shell principal através de:
 - **Microfrontend**: http://localhost:3001
 - **Shell**: http://localhost:3000/investments
 
+## 🔄 Redux State Management
+
+### Implementação Redux
+
+O microfrontend agora utiliza **Redux Toolkit** para gestão de estado centralizada:
+
+#### ✅ **Vantagens do Redux**
+
+- **Estado Centralizado**: Gestão unificada de dados
+- **Previsibilidade**: Fluxo de dados unidirecional
+- **DevTools**: Ferramentas de debugging avançadas
+- **Escalabilidade**: Fácil adição de novos slices
+- **Performance**: Otimizações automáticas
+
+#### 📁 **Estrutura Redux**
+
+```
+src/lib/
+├── store.ts              # Configuração da store
+├── hooks.ts              # Hooks personalizados
+└── slices/
+    ├── investmentsSlice.ts    # Estado dos investimentos
+    └── filtersSlice.ts        # Estado dos filtros
+```
+
+#### 🔄 **Slices Implementados**
+
+**Investments Slice:**
+```typescript
+addInvestment(investment)
+removeInvestment(id)
+updateInvestment(investment)
+setLoading(boolean)
+setError(string)
+clearError()
+```
+
+**Filters Slice:**
+```typescript
+setSearchTerm(string)
+setSelectedType(string)
+setSortBy('name' | 'amount' | 'return' | 'date')
+setSortOrder('asc' | 'desc')
+clearFilters()
+```
+
+#### 🎯 **Funcionalidades Redux**
+
+- **CRUD Completo**: Adicionar, editar, remover investimentos
+- **Filtros Avançados**: Busca por texto e tipo
+- **Ordenação**: Múltiplos critérios de ordenação
+- **Estado de Loading**: Indicadores de carregamento
+- **Tratamento de Erros**: Gestão centralizada de erros
+
+#### 📊 **Uso dos Hooks**
+
+```typescript
+const { investments, loading, error } = useAppSelector(state => state.investments);
+const { searchTerm, selectedType } = useAppSelector(state => state.filters);
+
+const dispatch = useAppDispatch();
+dispatch(addInvestment(newInvestment));
+dispatch(setSearchTerm('Tesouro'));
+```
+
 ## 🔄 Server-Side Rendering (SSR)
 
 ### Implementação SSR
@@ -201,13 +266,11 @@ O microfrontend agora utiliza **Server-Side Rendering** para melhor performance 
 #### 🔄 **Fluxo de Dados**
 
 ```typescript
-// 1. Página principal busca dados no servidor
 async function getInvestmentsData(): Promise<Investment[]> {
   const response = await fetch('/api/investments');
   return response.json();
 }
 
-// 2. Componente renderiza com dados já carregados
 export default async function InvestmentsPage() {
   const investments = await getInvestmentsData();
   return <div>{/* Renderização com dados */}</div>;
@@ -224,7 +287,6 @@ export default async function InvestmentsPage() {
 #### 📊 **API Route**
 
 ```typescript
-// GET /api/investments
 export async function GET() {
   return NextResponse.json({
     success: true,
@@ -234,32 +296,9 @@ export async function GET() {
 }
 ```
 
-## 🐛 Troubleshooting
+## 🔄 Shadcn/ui
 
-### Problemas Comuns
-
-1. **Shadcn/ui não funciona**:
-   - Verificar se `globals.css` está importado no layout
-   - Verificar configuração do `tailwind.config.ts`
-   - Verificar se os componentes estão na pasta `ui/`
-
-2. **Estilos não aplicados**:
-   - Verificar se o PostCSS está configurado
-   - Verificar se as classes estão corretas
-   - Verificar se as variáveis CSS estão definidas
-
-3. **Responsividade**:
-   - Verificar breakpoints no Tailwind
-   - Testar em diferentes tamanhos de tela
-
-4. **SSR não funciona**:
-   - Verificar se a API route está funcionando
-   - Verificar logs do servidor
-   - Verificar se o fetch está configurado corretamente
-
-## 🔄 Migração de Tailwind para Shadcn/ui
-
-### Vantagens da Migração
+### Vantagens 
 
 ✅ **Componentes Acessíveis**: Todos os componentes seguem padrões de acessibilidade
 ✅ **Consistência**: Design system unificado
@@ -267,7 +306,7 @@ export async function GET() {
 ✅ **Customização**: Fácil customização com Tailwind
 ✅ **Manutenibilidade**: Código mais limpo e organizado
 
-### Diferenças Principais
+### Diferenças Principais entre DS
 
 | Aspecto | Tailwind | Shadcn/ui |
 |---------|----------|-----------|
@@ -283,6 +322,6 @@ Este projeto é parte do Tech Challenge e está sob licença MIT.
 
 ---
 
-**Status**: ✅ Funcionando com Shadcn/ui + SSR
+**Status**: ✅ Funcionando com Shadcn/ui + SSR + Redux
 **Versão**: 3.0.0
 **Última atualização**: Dezembro 2024 
