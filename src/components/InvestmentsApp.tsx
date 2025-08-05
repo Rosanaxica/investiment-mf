@@ -105,8 +105,8 @@ export default function InvestmentsApp() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Meus Investimentos</h2>
+      <div className="flex justify-end items-center">
+  
         <Button className="flex items-center gap-2" onClick={() => setIsModalOpen(true)}>
           <Plus size={20} />
           Novo Investimento
