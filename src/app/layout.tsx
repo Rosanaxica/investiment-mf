@@ -1,4 +1,5 @@
 import './globals.css'
+import { Providers } from '../components/Providers'
 
 export const metadata = {
   title: 'Investimentos - Microfrontend',
@@ -12,7 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }

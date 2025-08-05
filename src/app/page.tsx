@@ -25,7 +25,6 @@ interface Investment {
   status: "active" | "pending" | "completed";
 }
 
-// Função para buscar dados no servidor
 async function getInvestmentsData(): Promise<Investment[]> {
   try {
     const baseUrl =

@@ -78,7 +78,6 @@ const mockInvestments: Investment[] = [
 
 export async function GET() {
   try {
-    // Simula uma chamada assíncrona, como uma consulta a um banco de dados
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     return NextResponse.json({
