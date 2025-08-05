@@ -7,7 +7,7 @@ export interface Investment {
   amount: number;
   return: number;
   date: string;
-  status?: 'active' | 'pending' | 'completed';
+  status?: 'active' | 'pending' | 'completed' | 'inactive';
 }
 
 interface InvestmentsState {
@@ -70,6 +70,14 @@ const investmentsSlice = createSlice({
         state.investments[index] = action.payload;
       }
     },
+    toggleInvestmentStatus: (state, action: PayloadAction<string>) => {
+      const investment = state.investments.find(
+        inv => inv.id === action.payload
+      );
+      if (investment) {
+        investment.status = investment.status === 'active' ? 'inactive' : 'active';
+      }
+    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
@@ -86,6 +94,7 @@ export const {
   addInvestment,
   removeInvestment,
   updateInvestment,
+  toggleInvestmentStatus,
   setLoading,
   setError,
   clearError,

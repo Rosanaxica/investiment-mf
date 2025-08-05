@@ -296,29 +296,6 @@ export async function GET() {
 }
 ```
 
-## 🐛 Troubleshooting
-
-### Problemas Comuns
-
-1. **Shadcn/ui não funciona**:
-   - Verificar se `globals.css` está importado no layout
-   - Verificar configuração do `tailwind.config.ts`
-   - Verificar se os componentes estão na pasta `ui/`
-
-2. **Estilos não aplicados**:
-   - Verificar se o PostCSS está configurado
-   - Verificar se as classes estão corretas
-   - Verificar se as variáveis CSS estão definidas
-
-3. **Responsividade**:
-   - Verificar breakpoints no Tailwind
-   - Testar em diferentes tamanhos de tela
-
-4. **SSR não funciona**:
-   - Verificar se a API route está funcionando
-   - Verificar logs do servidor
-   - Verificar se o fetch está configurado corretamente
-
 ## 🔄 Shadcn/ui
 
 ### Vantagens 

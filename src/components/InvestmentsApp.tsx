@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { TrendingUp, DollarSign, BarChart3, Plus, Trash2, Edit } from 'lucide-react';
+import { TrendingUp, DollarSign, BarChart3, Plus, Trash2, Edit, Power, PowerOff, Target } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../lib/hooks';
-import { removeInvestment, updateInvestment } from '../lib/slices/investmentsSlice';
+import { removeInvestment, updateInvestment, toggleInvestmentStatus } from '../lib/slices/investmentsSlice';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -49,8 +49,10 @@ export default function InvestmentsApp() {
     }
   });
 
-  const totalInvested = investments.reduce((sum, inv) => sum + inv.amount, 0);
-  const totalReturn = investments.reduce((sum, inv) => sum + (inv.amount * inv.return / 100), 0);
+  const activeInvestments = investments.filter(inv => inv.status === 'active');
+  const totalInvested = activeInvestments.reduce((sum, inv) => sum + inv.amount, 0);
+  const totalReturn = activeInvestments.reduce((sum, inv) => sum + (inv.amount * inv.return / 100), 0);
+  const totalValue = totalInvested + totalReturn;
 
   const handleRemoveInvestment = (id: string) => {
     dispatch(removeInvestment(id));
@@ -81,6 +83,10 @@ export default function InvestmentsApp() {
     setEditForm({ name: '', type: '', amount: 0, return: 0 });
   };
 
+  const handleToggleStatus = (id: string) => {
+    dispatch(toggleInvestmentStatus(id));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -109,40 +115,62 @@ export default function InvestmentsApp() {
 
       <InvestmentFilters />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Investido</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {totalInvested.toLocaleString('pt-BR')}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Retorno Total</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              R$ {totalReturn.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-black p-6 rounded-lg border border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500 rounded-lg">
+              <DollarSign className="text-white" size={24} />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rentabilidade</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {((totalReturn / totalInvested) * 100).toFixed(2)}%
+            <div>
+              <p className="text-sm text-blue-300 font-medium">Total Investido</p>
+              <p className="text-2xl font-bold text-white">
+                R$ {totalInvested.toLocaleString('pt-BR')}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        <div className="bg-black p-6 rounded-lg border border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-500 rounded-lg">
+              <TrendingUp className="text-white" size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-green-300 font-medium">Retorno Total</p>
+              <p className="text-2xl font-bold text-white">
+                R$ {totalReturn.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-black p-6 rounded-lg border border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500 rounded-lg">
+              <BarChart3 className="text-white" size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-purple-300 font-medium">Rentabilidade</p>
+              <p className="text-2xl font-bold text-white">
+                {((totalReturn / totalInvested) * 100).toFixed(2)}%
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-black p-6 rounded-lg border border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-orange-500 rounded-lg">
+              <Target className="text-white" size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-orange-300 font-medium">Investimentos Ativos</p>
+              <p className="text-2xl font-bold text-white">
+                {activeInvestments.length}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Card>
@@ -205,13 +233,17 @@ export default function InvestmentsApp() {
                     </div>
                   ) : (
                     <>
-                      <h4 className="font-semibold text-gray-900">{investment.name}</h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary">{investment.type}</Badge>
-                        <span className="text-xs text-gray-500">
-                          Investido em {new Date(investment.date).toLocaleDateString('pt-BR')}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-gray-900">{investment.name}</h4>
+                        <Badge 
+                          variant={investment.status === 'active' ? 'default' : 'secondary'}
+                          className={investment.status === 'inactive' ? 'bg-gray-100 text-gray-600' : ''}
+                        >
+                          {investment.status === 'active' ? 'Ativo' : 'Inativo'}
+                        </Badge>
                       </div>
+                      <p className="text-sm text-gray-600">{investment.type}</p>
+                      <p className="text-xs text-gray-500">Investido em {new Date(investment.date).toLocaleDateString('pt-BR')}</p>
                     </>
                   )}
                 </div>
@@ -229,13 +261,23 @@ export default function InvestmentsApp() {
                         size="sm" 
                         variant="outline"
                         onClick={() => handleEditInvestment(investment)}
+                        className="bg-black text-white hover:bg-gray-800 border-black"
                       >
                         <Edit size={16} />
                       </Button>
                       <Button 
                         size="sm" 
-                        variant="destructive"
+                        variant="outline"
+                        onClick={() => handleToggleStatus(investment.id)}
+                        className="bg-black text-white hover:bg-gray-800 border-black"
+                      >
+                        {investment.status === 'active' ? <PowerOff size={16} /> : <Power size={16} />}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
                         onClick={() => handleRemoveInvestment(investment.id)}
+                        className="bg-black text-white hover:bg-gray-800 border-black"
                       >
                         <Trash2 size={16} />
                       </Button>
